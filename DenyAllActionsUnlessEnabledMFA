@@ -1,0 +1,74 @@
+{
+    "Sid": "AllowIndividualUserToUpdateOwnPassword",
+    "Effect": "Allow",
+    "Action": "iam:UpdateLoginProfile",
+    "Resource": "arn:aws:iam::*:user/${aws:username}"
+}
+{
+    "Sid": "AllowIndividualUserToSetOwnPassword",
+    "Effect": "Allow",
+    "Action": "iam:CreateLoginProfile",
+    "Resource": "arn:aws:iam::*:user/${aws:username}"
+}
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowAllUsersToListAccounts",
+            "Effect": "Allow",
+            "Action": "iam:ListUsers",
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowIndividualUserToSeeOwnAccountInformation",
+            "Effect": "Allow",
+            "Action": [
+                "iam:ChangePassword",
+                "iam:GetUser",
+                "iam:ListAccessKeys",
+                "iam:ListGroupsForUser",
+                "iam:ListMFADevices",
+                "iam:ListSigningCertificates",
+                "iam:ListSSHPublicKeys",
+                "iam:ListServiceSpecificCredentials",
+                "iam:GetLoginProfile"
+            ],
+            "Resource": "arn:aws:iam::*:user/${aws:username}"
+        },
+        {
+            "Sid": "AllowIndividualUserToListOwnMFA",
+            "Effect": "Allow",
+            "Action": "iam:ListMFADevices",
+            "Resource": "arn:aws:iam::*:mfa/${aws:username}"
+        },
+        {
+            "Sid": "AllowIndividualUserToManageOwnMFADevice",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateVirtualMFADevice",
+                "iam:EnableMFADevice",
+                "iam:ResyncMFADevice"
+            ],
+            "Resource": "arn:aws:iam::*:mfa/${aws:username}"
+        },
+        {
+            "Sid": "BlockAnyAccessOtherThanAboveUnlessSignedInWithMFA",
+            "Effect": "Deny",
+            "NotAction": [
+                "iam:ChangePassword",
+                "iam:GetUser",
+                "iam:CreateVirtualMFADevice",
+                "iam:EnableMFADevice",
+                "iam:ResyncMFADevice",
+                "iam:ListMFADevices",
+                "iam:ListVirtualMFADevices"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "BoolIfExists": {
+                    "aws:MultiFactorAuthPresent": "false"
+                }
+            }
+        }
+    ]
+}
